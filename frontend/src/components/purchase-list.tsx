@@ -61,7 +61,7 @@ export const PurchaseList: React.FC<PurchaseListProps> = ({
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => onDelete(purchase.id)}
+                  onClick={() => onDelete(purchase.id!)}
                 >
                   Excluir
                 </Button>

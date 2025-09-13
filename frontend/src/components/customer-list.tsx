@@ -103,7 +103,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
                   </Button>
                   <Button
                     variant="destructive"
-                    onClick={() => onDelete(customer.id)}
+                    onClick={() => onDelete(customer.id!)}
                   >
                     Excluir
                   </Button>
@@ -141,7 +141,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
                 <h3 className="font-semibold">
                   Total em compras:{" "}
                   {getCustomerTotalPurchases(
-                    selectedCustomer.id
+                    selectedCustomer.id!
                   ).toLocaleString("pt-BR", {
                     style: "currency",
                     currency: "BRL",

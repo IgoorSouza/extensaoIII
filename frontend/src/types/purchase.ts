@@ -1,8 +1,8 @@
 export interface Purchase {
-  id: string;
+  id?: string;
   title: string;
   value: number;
-  description: string;
+  description?: string;
   date: string;
   customerId: string;
 }

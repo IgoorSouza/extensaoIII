@@ -150,7 +150,7 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {customers.map((customer) => (
-                  <SelectItem key={customer.id} value={customer.id}>
+                  <SelectItem key={customer.id} value={customer.id!}>
                     {customer.name}
                   </SelectItem>
                 ))}
