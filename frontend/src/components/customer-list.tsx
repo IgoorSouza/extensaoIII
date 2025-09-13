@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { type User } from "../types/user";
+import { type Customer } from "../types/customer";
 import { type Purchase } from "../types/purchase";
 import {
   Table,
@@ -22,40 +22,42 @@ import qrcode from "../assets/qr-code.png";
 import copy from "../assets/copy.png";
 import whatsapp from "../assets/whatsapp.png";
 
-interface UserListProps {
-  users: User[];
+interface CustomerListProps {
+  customers: Customer[];
   purchases: Purchase[];
-  onEdit: (user: User) => void;
+  onEdit: (customer: Customer) => void;
   onDelete: (id: string) => void;
 }
 
-export const UserList: React.FC<UserListProps> = ({
-  users,
+export const CustomerList: React.FC<CustomerListProps> = ({
+  customers,
   purchases,
   onEdit,
   onDelete,
 }) => {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pixValue, setPixValue] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [pixCode, setPixCode] = useState("");
 
-  const getUserTotalPurchases = (userId: string) => {
+  const getCustomerTotalPurchases = (customerId: string) => {
     return purchases
-      .filter((p) => p.user_id === userId)
+      .filter((p) => p.customerId === customerId)
       .reduce((acc, p) => acc + p.value, 0);
   };
 
   const generatePix = async () => {
-    if (!pixValue || Number(pixValue) <= 0 || !selectedUser) return;
+    if (!pixValue || Number(pixValue) <= 0 || !selectedCustomer) return;
 
     setQrCodeUrl(qrcode);
     setPixCode("código copia e cola aqui");
   };
 
-  const handleOpenModal = (user: User) => {
-    setSelectedUser(user);
+  const handleOpenModal = (customer: Customer) => {
+    setSelectedCustomer(customer);
     setPixValue("");
     setQrCodeUrl("");
     setPixCode("");
@@ -75,33 +77,33 @@ export const UserList: React.FC<UserListProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.length === 0 ? (
+          {customers.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="text-center">
-                Nenhum usuário cadastrado.
+                Nenhum cliente cadastrado.
               </TableCell>
             </TableRow>
           ) : (
-            users.map((user) => (
+            customers.map((customer) => (
               <TableRow
-                key={user.id}
+                key={customer.id}
                 className="cursor-pointer hover:bg-gray-100"
-                onClick={() => handleOpenModal(user)}
+                onClick={() => handleOpenModal(customer)}
               >
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.cpf}</TableCell>
-                <TableCell>{user.phone}</TableCell>
+                <TableCell>{customer.name}</TableCell>
+                <TableCell>{customer.email}</TableCell>
+                <TableCell>{customer.cpf}</TableCell>
+                <TableCell>{customer.phone}</TableCell>
                 <TableCell
                   className="text-center space-x-2"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Button variant="outline" onClick={() => onEdit(user)}>
+                  <Button variant="outline" onClick={() => onEdit(customer)}>
                     Editar
                   </Button>
                   <Button
                     variant="destructive"
-                    onClick={() => onDelete(user.id)}
+                    onClick={() => onDelete(customer.id)}
                   >
                     Excluir
                   </Button>
@@ -118,33 +120,32 @@ export const UserList: React.FC<UserListProps> = ({
             <DialogTitle>Detalhes do Cliente</DialogTitle>
           </DialogHeader>
 
-          {selectedUser && (
+          {selectedCustomer && (
             <div className="space-y-4">
               <div className="space-y-2">
                 <p>
-                  <strong>Nome:</strong> {selectedUser.name}
+                  <strong>Nome:</strong> {selectedCustomer.name}
                 </p>
                 <p>
-                  <strong>Email:</strong> {selectedUser.email}
+                  <strong>Email:</strong> {selectedCustomer.email}
                 </p>
                 <p>
-                  <strong>CPF:</strong> {selectedUser.cpf}
+                  <strong>CPF:</strong> {selectedCustomer.cpf}
                 </p>
                 <p>
-                  <strong>Telefone:</strong> {selectedUser.phone}
+                  <strong>Telefone:</strong> {selectedCustomer.phone}
                 </p>
               </div>
 
               <div className="mt-4">
                 <h3 className="font-semibold">
                   Total em compras:{" "}
-                  {getUserTotalPurchases(selectedUser.id).toLocaleString(
-                    "pt-BR",
-                    {
-                      style: "currency",
-                      currency: "BRL",
-                    }
-                  )}
+                  {getCustomerTotalPurchases(
+                    selectedCustomer.id
+                  ).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
                 </h3>
               </div>
 
@@ -182,7 +183,7 @@ export const UserList: React.FC<UserListProps> = ({
 
                     <Button variant="outline" className="self-center">
                       <a
-                        href={`https://wa.me/${selectedUser.phone
+                        href={`https://wa.me/${selectedCustomer.phone
                           .replaceAll(" ", "")
                           .replaceAll(
                             "-",

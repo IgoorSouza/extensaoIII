@@ -1,45 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { type Purchase } from "../types/purchase";
-import type { User } from "../types/user";
+import type { Customer } from "../types/customer";
 import { PurchaseList } from "../components/purchase-list";
 import { PurchaseForm } from "../components/purchase-form";
 import { Button } from "../components/ui/button";
+import axios from "../lib/axios";
+import toast from "react-hot-toast";
 
 const PurchasesPage: React.FC = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
-  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
+  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(
+    null
+  );
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
-  const [users] = useState<User[]>([
-    {
-      id: "1",
-      name: "João Silva",
-      email: "joao@email.com",
-      cpf: "12345678900",
-      phone: "11999999999",
-    },
-    {
-      id: "2",
-      name: "Maria Souza",
-      email: "maria@email.com",
-      cpf: "98765432100",
-      phone: "11888888888",
-    },
-  ]);
+  const fetchPurchases = async () => {
+    const { data } = await axios.get<Purchase[]>("/purchase");
+    setPurchases(data);
+  };
+
+  const fetchCustomers = async () => {
+    const { data } = await axios.get<Customer[]>("/customer?pageSize=999");
+    setCustomers(data);
+  };
+
+  useEffect(() => {
+    fetchPurchases();
+    fetchCustomers();
+  }, []);
 
   const handleAdd = () => {
     setSelectedPurchase(null);
     setIsFormOpen(true);
   };
 
-  const handleSave = (purchase: Purchase) => {
-    setPurchases((prev) => {
-      const exists = prev.find((p) => p.id === purchase.id);
-      return exists
-        ? prev.map((p) => (p.id === purchase.id ? purchase : p))
-        : [...prev, purchase];
-    });
-    setIsFormOpen(false);
+  const handleSave = async (purchase: Purchase) => {
+    try {
+      if (purchase.id) {
+        const response = await axios.put(`/purchase/${purchase.id}`, purchase);
+        setPurchases((prev) =>
+          prev.map((p) => (p.id === purchase.id ? response.data : p))
+        );
+      } else {
+        const response = await axios.post("/purchase", purchase);
+        setPurchases((prev) => [...prev, response.data]);
+      }
+
+      setIsFormOpen(false);
+      toast.success(
+        `Compra ${purchase.id ? "atualizada" : "cadastrada"} com sucesso.`
+      );
+    } catch {
+      toast.error(`Erro ao ${purchase.id ? "atualizar" : "adicionar"} compra.`);
+    }
   };
 
   const handleEdit = (purchase: Purchase) => {
@@ -47,8 +61,14 @@ const PurchasesPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setPurchases((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(`/purchase/${id}`);
+      setPurchases((prev) => prev.filter((purchase) => purchase.id !== id));
+      toast.success("Compra excluída com sucesso.");
+    } catch {
+      toast.error("Erro ao excluir compra.");
+    }
   };
 
   return (
@@ -60,7 +80,7 @@ const PurchasesPage: React.FC = () => {
 
       <PurchaseList
         purchases={purchases}
-        users={users}
+        customers={customers}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
@@ -70,7 +90,7 @@ const PurchasesPage: React.FC = () => {
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleSave}
         initialData={selectedPurchase}
-        users={users}
+        customers={customers}
       />
     </div>
   );

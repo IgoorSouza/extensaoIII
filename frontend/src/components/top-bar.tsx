@@ -5,9 +5,8 @@ const TopBar: React.FC = () => {
   const location = useLocation();
 
   const links = [
-    { label: "Usuários", path: "/" },
+    { label: "Clientes", path: "/" },
     { label: "Compras", path: "/purchases" },
-    { label: "Pagamentos", path: "/payments" },
   ];
 
   return (

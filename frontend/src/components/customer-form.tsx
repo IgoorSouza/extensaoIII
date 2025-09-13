@@ -11,18 +11,18 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
-import { type User } from "../types/user";
-import { userSchema } from "../validators/users";
-import type { UserFormData } from "../types/user-form-data";
+import { type Customer } from "../types/customer";
+import { customerSchema } from "../validators/customer";
+import type { CustomerFormData } from "../types/customer-form-data";
 
-interface UserFormProps {
+interface CustomerFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (user: User) => void;
-  initialData?: User | null;
+  onSubmit: (customer: Customer) => void;
+  initialData?: Customer | null;
 }
 
-export const UserForm: React.FC<UserFormProps> = ({
+export const CustomerForm: React.FC<CustomerFormProps> = ({
   open,
   onClose,
   onSubmit,
@@ -33,8 +33,8 @@ export const UserForm: React.FC<UserFormProps> = ({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
+  } = useForm<CustomerFormData>({
+    resolver: zodResolver(customerSchema),
     defaultValues: initialData || {
       name: "",
       email: "",
@@ -54,10 +54,12 @@ export const UserForm: React.FC<UserFormProps> = ({
     );
   }, [initialData, reset]);
 
-  const submitHandler = (data: UserFormData) => {
-    const user: User = { ...data, id: initialData?.id || crypto.randomUUID() };
-    onSubmit(user);
-    onClose();
+  const submitHandler = (data: CustomerFormData) => {
+    const customer: Customer = {
+      ...data,
+      id: initialData?.id,
+    };
+    onSubmit(customer);
   };
 
   return (
@@ -65,7 +67,7 @@ export const UserForm: React.FC<UserFormProps> = ({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Editar Usuário" : "Adicionar Usuário"}
+            {initialData ? "Editar Cliente" : "Adicionar Cliente"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">

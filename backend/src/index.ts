@@ -1,36 +1,22 @@
-import { MercadoPagoConfig, Payment } from "mercadopago";
+import express from "express";
+import cors from "cors";
+import customerController from "./controllers/customer-controller";
+import { handleException } from "./middlewares/exception-handler";
+import purchaseController from "./controllers/purchase-controller";
 
-process.loadEnvFile(".env");
+const app = express();
 
-const mercadoPagoApiToken = process.env.MERCADO_PAGO_API_TOKEN;
-if (!mercadoPagoApiToken) throw new Error("Mercado Pago token not found.");
+app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  })
+);
 
-const client = new MercadoPagoConfig({
-  accessToken: mercadoPagoApiToken,
-});
+customerController(app);
+purchaseController(app);
 
-const payments = new Payment(client);
+app.use(handleException);
 
-(async () => {
-  try {
-    const body = {
-      transaction_amount: 0.01,
-      description: "Compra no Mercado XYZ",
-      payment_method_id: "pix",
-      payer: {
-        email: "igorscastroptc2@gmail.com",
-        first_name: "Igor",
-        last_name: "Souza",
-        identification: {
-          type: "CPF",
-          number: "11712530607",
-        },
-      },
-    };
-    
-    const response = await payments.create({ body });
-    console.log(response);
-  } catch (err) {
-    console.error(err);
-  }
-})();
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Server listening on port ${port}!`));

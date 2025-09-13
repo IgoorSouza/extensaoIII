@@ -1,5 +1,5 @@
 import React from "react";
-import { type User } from "../types/user.ts";
+import { type Customer } from "../types/customer.ts";
 import type { Purchase } from "../types/purchase.ts";
 import {
   Table,
@@ -13,19 +13,20 @@ import { Button } from "./ui/button";
 
 interface PurchaseListProps {
   purchases: Purchase[];
-  users: User[];
+  customers: Customer[];
   onEdit: (purchase: Purchase) => void;
   onDelete: (id: string) => void;
 }
 
 export const PurchaseList: React.FC<PurchaseListProps> = ({
   purchases,
-  users,
+  customers,
   onEdit,
   onDelete,
 }) => {
-  const getUserName = (userId: string) =>
-    users.find((u) => u.id === userId)?.name || "Cliente não encontrado";
+  const getCustomerName = (customerId: string) =>
+    customers.find((u) => u.id === customerId)?.name ||
+    "Cliente não encontrado";
 
   return (
     <Table>
@@ -53,7 +54,7 @@ export const PurchaseList: React.FC<PurchaseListProps> = ({
               <TableCell>
                 {new Date(purchase.date).toLocaleDateString("pt-BR")}
               </TableCell>
-              <TableCell>{getUserName(purchase.user_id)}</TableCell>
+              <TableCell>{getCustomerName(purchase.customerId)}</TableCell>
               <TableCell className="text-center space-x-2">
                 <Button variant="outline" onClick={() => onEdit(purchase)}>
                   Editar

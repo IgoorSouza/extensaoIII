@@ -20,8 +20,8 @@ import {
   SelectValue,
 } from "./ui/select";
 import type { Purchase } from "../types/purchase";
-import type { User } from "../types/user";
-import { purchaseSchema } from "../validators/purchases";
+import type { Customer } from "../types/customer";
+import { purchaseSchema } from "../validators/purchase";
 import type { PurchaseFormData } from "../types/purchase-form-data";
 
 interface PurchaseFormProps {
@@ -29,7 +29,7 @@ interface PurchaseFormProps {
   onClose: () => void;
   onSubmit: (purchase: Purchase) => void;
   initialData?: Purchase | null;
-  users: User[];
+  customers: Customer[];
 }
 
 export const PurchaseForm: React.FC<PurchaseFormProps> = ({
@@ -37,34 +37,52 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
   onClose,
   onSubmit,
   initialData,
-  users,
+  customers,
 }) => {
   const {
     register,
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<PurchaseFormData>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: initialData || {
       title: "",
+      description: "",
+      value: 0,
       date: "",
-      user_id: "",
+      customerId: "",
     },
   });
 
+  const customerId = watch("customerId");
+
   useEffect(() => {
-    reset(initialData || { title: "", description: "", date: "", user_id: "" });
+    reset(
+      initialData || {
+        title: "",
+        description: "",
+        value: 0,
+        date: "",
+        customerId: "",
+      }
+    );
   }, [initialData, reset]);
 
   const submitHandler = (data: PurchaseFormData) => {
+    const fullDate = data.date
+      ? `${data.date}T12:00:00.000Z`
+      : new Date().toISOString();
+
     const purchase: Purchase = {
       ...data,
       id: initialData?.id,
+      date: fullDate,
     };
+
     onSubmit(purchase);
-    onClose();
   };
 
   return (
@@ -97,6 +115,20 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
             )}
           </div>
           <div>
+            <Label className="mb-2" htmlFor="value">
+              Valor (R$)
+            </Label>
+            <Input
+              id="value"
+              type="number"
+              step="0.01"
+              {...register("value", { valueAsNumber: true })}
+            />
+            {errors.value && (
+              <p className="text-red-500 text-sm">{errors.value.message}</p>
+            )}
+          </div>
+          <div>
             <Label className="mb-2" htmlFor="date">
               Data
             </Label>
@@ -106,26 +138,28 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
             )}
           </div>
           <div>
-            <Label className="mb-2" htmlFor="user_id">
+            <Label className="mb-2" htmlFor="customerId">
               Cliente
             </Label>
             <Select
-              value={initialData?.user_id || ""}
-              onValueChange={(value) => setValue("user_id", value)}
+              value={customerId || ""}
+              onValueChange={(value) => setValue("customerId", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um cliente" />
               </SelectTrigger>
               <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name}
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.id}>
+                    {customer.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.user_id && (
-              <p className="text-red-500 text-sm">{errors.user_id.message}</p>
+            {errors.customerId && (
+              <p className="text-red-500 text-sm">
+                {errors.customerId.message}
+              </p>
             )}
           </div>
           <DialogFooter>

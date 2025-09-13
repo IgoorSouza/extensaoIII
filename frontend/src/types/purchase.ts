@@ -4,5 +4,5 @@ export interface Purchase {
   value: number;
   description: string;
   date: string;
-  user_id: string;
+  customerId: string;
 }
