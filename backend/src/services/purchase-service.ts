@@ -15,14 +15,24 @@ export async function getPurchases(
   const parsedStartDate = startDate ? new Date(startDate) : undefined;
   const parsedEndDate = endDate ? new Date(endDate) : undefined;
 
-  return await purchaseRepository.findPage(
-    pageNumber,
-    pageSizeNumber,
-    title,
-    customerId,
-    parsedStartDate,
-    parsedEndDate
-  );
+  const [purchases, totalCount] = await Promise.all([
+    purchaseRepository.findPage(
+      pageNumber,
+      pageSizeNumber,
+      title,
+      customerId,
+      parsedStartDate,
+      parsedEndDate
+    ),
+    purchaseRepository.findTotalCount(
+      title,
+      customerId,
+      parsedStartDate,
+      parsedEndDate
+    ),
+  ]);
+
+  return { purchases, totalCount };
 }
 
 export async function createPurchase(purchaseData: PurchaseData) {

@@ -19,7 +19,7 @@ export default function purchaseController(app: Express) {
           endDate?: string;
         };
 
-      const purchases = await purchaseService.getPurchases(
+      const { purchases, totalCount } = await purchaseService.getPurchases(
         page,
         pageSize,
         title,
@@ -28,7 +28,7 @@ export default function purchaseController(app: Express) {
         endDate
       );
 
-      res.status(200).json(purchases);
+      res.status(200).json({ purchases, totalCount });
     } catch (error) {
       next(error);
     }

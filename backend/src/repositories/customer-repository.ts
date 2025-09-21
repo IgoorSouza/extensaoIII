@@ -28,6 +28,25 @@ export async function findPage(
   });
 }
 
+export async function findTotalCount(name?: string, email?: string, phone?: string) {
+  return await prisma.customer.count({
+    where: {
+      name: {
+        contains: name,
+        mode: "insensitive",
+      },
+      email: {
+        contains: email,
+        mode: "insensitive",
+      },
+      phone: {
+        contains: phone,
+        mode: "insensitive",
+      },
+    },
+  });
+}
+
 export async function findById(id: string) {
   return await prisma.customer.findUnique({
     where: {
@@ -36,14 +55,15 @@ export async function findById(id: string) {
   });
 }
 
-export async function findByEmailOrPhone(
+export async function findByEmailOrCpfOrPhone(
   email: string,
+  cpf: string,
   phone: string,
   id?: string
 ) {
   return await prisma.customer.findFirst({
     where: {
-      OR: [{ email }, { phone }],
+      OR: [{ email }, { cpf }, { phone }],
       ...(id ? { NOT: { id } } : {}),
     },
   });

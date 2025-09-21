@@ -13,18 +13,18 @@ export async function getCustomers(
   const pageNumber = Math.max(parseInt(page || "1") - 1, 0);
   const pageSizeNumber = Math.max(parseInt(pageSize || "10"), 1);
 
-  return await customerRepository.findPage(
-    pageNumber,
-    pageSizeNumber,
-    name,
-    email,
-    phone
-  );
+  const [customers, totalCount] = await Promise.all([
+    customerRepository.findPage(pageNumber, pageSizeNumber, name, email, phone),
+    customerRepository.findTotalCount(name, email, phone),
+  ]);
+
+  return { customers, totalCount };
 }
 
 export async function createCustomer(customerData: CustomerData) {
-  await throwErrorIfCustomerWithEmailOrPhoneExists(
+  await throwErrorIfCustomerWithEmailOrCpfOrPhoneExists(
     customerData.email,
+    customerData.cpf,
     customerData.phone
   );
 
@@ -33,8 +33,9 @@ export async function createCustomer(customerData: CustomerData) {
 
 export async function updateCustomer(id: string, customerData: CustomerData) {
   await throwErrorIfCustomerNotExists(id);
-  await throwErrorIfCustomerWithEmailOrPhoneExists(
+  await throwErrorIfCustomerWithEmailOrCpfOrPhoneExists(
     customerData.email,
+    customerData.cpf,
     customerData.phone,
     id
   );
@@ -55,13 +56,14 @@ async function throwErrorIfCustomerNotExists(id: string) {
   }
 }
 
-async function throwErrorIfCustomerWithEmailOrPhoneExists(
+async function throwErrorIfCustomerWithEmailOrCpfOrPhoneExists(
   email: string,
+  cpf: string,
   phone: string,
   id?: string
 ) {
   const customerWithSameEmailOrPhone =
-    await customerRepository.findByEmailOrPhone(email, phone, id);
+    await customerRepository.findByEmailOrCpfOrPhone(email, cpf, phone, id);
 
   if (customerWithSameEmailOrPhone) {
     throw new ConflictException("Phone or email already in use.");

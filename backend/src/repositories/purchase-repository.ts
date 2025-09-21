@@ -31,6 +31,32 @@ export async function findPage(
   });
 }
 
+export async function findTotalCount(
+  title?: string,
+  customerId?: string,
+  startDate?: Date,
+  endDate?: Date
+) {
+  return await prisma.purchase.count({
+    where: {
+      title: title
+        ? {
+            contains: title,
+            mode: "insensitive",
+          }
+        : undefined,
+      customerId: customerId || undefined,
+      date:
+        startDate || endDate
+          ? {
+              gte: startDate,
+              lte: endDate,
+            }
+          : undefined,
+    },
+  });
+}
+
 export async function findById(id: string) {
   return await prisma.purchase.findUnique({
     where: { id },

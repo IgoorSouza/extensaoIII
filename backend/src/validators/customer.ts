@@ -11,6 +11,6 @@ export const customerSchema = z.object({
     .max(11, "Field 'cpf' must have exactly 11 digits."),
   phone: z
     .string()
-    .min(8, "Field 'phone' must have at least 8 digits")
-    .max(9, "Field 'phone' must have at most 9 digits"),
+    .min(10, "Field 'phone' must have at least 10 digits")
+    .max(11, "Field 'phone' must have at most 11 digits"),
 });

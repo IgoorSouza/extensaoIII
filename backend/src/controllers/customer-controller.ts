@@ -17,7 +17,7 @@ export default function customerController(app: Express) {
         phone?: string;
       };
 
-      const customers = await customerService.getCustomers(
+      const { customers, totalCount } = await customerService.getCustomers(
         page,
         pageSize,
         name,
@@ -25,7 +25,7 @@ export default function customerController(app: Express) {
         phone
       );
 
-      res.status(200).json(customers);
+      res.status(200).json({ customers, totalCount });
     } catch (error) {
       next(error);
     }
