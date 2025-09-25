@@ -43,7 +43,6 @@ const mockCustomers: Customer[] = [
 const mockPayments: Payment[] = [
   {
     id: "pay-1",
-    mpId: "MP-12345",
     status: "approved",
     value: 150.75,
     customerId: "cust-1",
@@ -52,7 +51,6 @@ const mockPayments: Payment[] = [
   },
   {
     id: "pay-2",
-    mpId: "MP-67890",
     status: "pending",
     value: 45.0,
     customerId: "cust-2",
@@ -61,7 +59,6 @@ const mockPayments: Payment[] = [
   },
   {
     id: "pay-3",
-    mpId: "MP-13579",
     status: "rejected",
     value: 200.0,
     customerId: "cust-1",
@@ -135,7 +132,6 @@ const PaymentsPage: React.FC = () => {
   const handleQrCodeGenerated = (newPaymentData: PaymentFormData) => {
     const newPayment: Payment = {
       id: `pay-${Date.now()}`,
-      mpId: `MP-${Date.now()}`,
       status: "pending",
       value: newPaymentData.value,
       customerId: newPaymentData.customerId,
