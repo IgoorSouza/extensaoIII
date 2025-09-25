@@ -7,6 +7,7 @@ const TopBar: React.FC = () => {
   const links = [
     { label: "Clientes", path: "/" },
     { label: "Compras", path: "/purchases" },
+    { label: "Pagamentos", path: "/payments" }, // Adicionado
   ];
 
   return (
