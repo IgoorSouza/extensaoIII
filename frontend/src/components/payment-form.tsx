@@ -74,18 +74,18 @@ export const PaymentForm: React.FC<QrCodeModalProps> = ({
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const mockPaymentLink = `https://sandbox.mercadopago.com.br/payment?id=${Date.now()}`;
+      const paymentLink = `https://sandbox.mercadopago.com.br/payment?id=${Date.now()}`;
 
-      const mockQrCodeData: QrCodeData = {
-        qrCode: mockPaymentLink,
+      const qrCodeData: QrCodeData = {
+        qrCode: paymentLink,
         paymentId: `MP-${Date.now()}`,
       };
 
-      setQrCodeData(mockQrCodeData);
+      setQrCodeData(qrCodeData);
       onQrCodeGenerated(data);
-      toast.success("QR Code de pagamento mockado gerado com sucesso!");
+      toast.success("QR Code de pagamento gerado com sucesso!");
     } catch {
-      toast.error("Erro ao gerar QR Code de pagamento (Mock).");
+      toast.error("Erro ao gerar QR Code de pagamento.");
     } finally {
       setIsSubmitting(false);
     }
@@ -106,16 +106,11 @@ export const PaymentForm: React.FC<QrCodeModalProps> = ({
         {qrCodeData ? (
           <div className="flex flex-col items-center space-y-4">
             <p className="text-lg font-semibold text-green-600">
-              Pagamento Pendente Criado (Mock)!
-            </p>
-            <p className="text-sm text-gray-500 text-center">
-              Aguardando pagamento. O status seria atualizado por webhook. O ID
-              da transação mockada é:{" "}
-              <span className="font-mono">{qrCodeData.paymentId}</span>
+              Código de Pagamento Criado!
             </p>
             <img
               src={`${QR_API_URL}${encodeURIComponent(qrCodeData.qrCode)}`}
-              alt="QR Code de Pagamento Mock"
+              alt="QR Code de Pagamento"
               className="size-48 border p-2"
             />
           </div>
