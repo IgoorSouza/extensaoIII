@@ -12,66 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import type { PaymentFormData } from "../types/payment-form-data";
 import { SearchableSelect } from "../components/ui/searchable-select";
 import { PaymentForm } from "../components/payment-form";
-
-const mockCustomers: Customer[] = [
-  {
-    id: "cust-1",
-    name: "Alice Silva",
-    email: "alice@example.com",
-    cpf: "11122233344",
-    phone: "11988887777",
-  },
-  {
-    id: "cust-2",
-    name: "Bob Souza",
-    email: "bob@example.com",
-    cpf: "55566677788",
-    phone: "21999996666",
-  },
-  {
-    id: "cust-3",
-    name: "Charlie Brown",
-    email: "charlie@example.com",
-    cpf: "99988877766",
-    phone: "31977775555",
-  },
-];
-
-const mockPayments: Payment[] = [
-  {
-    id: "pay-1",
-    status: "approved",
-    value: 150.75,
-    customerId: "cust-1",
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    Customer: { name: "Alice Silva", email: "alice@example.com" },
-  },
-  {
-    id: "pay-2",
-    status: "pending",
-    value: 45.0,
-    customerId: "cust-2",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    Customer: { name: "Bob Souza", email: "bob@example.com" },
-  },
-  {
-    id: "pay-3",
-    status: "rejected",
-    value: 200.0,
-    customerId: "cust-1",
-    createdAt: new Date().toISOString(),
-    Customer: { name: "Alice Silva", email: "alice@example.com" },
-  },
-];
+import axios from "../lib/axios";
+import toast from "react-hot-toast";
 
 const PaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
-
   const [filterCustomerId, setFilterCustomerId] = useState("all-customers");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
@@ -80,41 +29,39 @@ const PaymentsPage: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
 
   const fetchCustomers = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    setCustomers(mockCustomers);
+    try {
+      const { data } = await axios.get<{
+        customers: Customer[];
+        totalCount: number;
+      }>("/customer?pageSize=999");
+      setCustomers(data.customers);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      toast.error("Erro ao carregar lista de clientes.");
+    }
   };
 
   const fetchPayments = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    const params = new URLSearchParams();
+    if (filterCustomerId !== "all-customers")
+      params.append("customerId", filterCustomerId);
+    if (filterStartDate) params.append("startDate", filterStartDate);
+    if (filterEndDate) params.append("endDate", filterEndDate);
+    params.append("page", String(currentPage));
+    params.append("pageSize", String(pageSize));
 
-    let filteredPayments = mockPayments.map((p) => ({
-      ...p,
-      Customer: mockCustomers.find((c) => c.id === p.customerId),
-    })) as Payment[];
+    try {
+      const { data } = await axios.get<{
+        payments: Payment[];
+        totalCount: number;
+      }>("/payment", { params });
 
-    if (filterCustomerId !== "all-customers") {
-      filteredPayments = filteredPayments.filter(
-        (p) => p.customerId === filterCustomerId
-      );
+      setPayments(data.payments);
+      setTotalItems(data.totalCount);
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+      toast.error("Erro ao carregar lista de pagamentos.");
     }
-
-    const start = filterStartDate ? new Date(filterStartDate).getTime() : 0;
-    const end = filterEndDate ? new Date(filterEndDate).getTime() : Infinity;
-
-    filteredPayments = filteredPayments.filter((p) => {
-      const paymentTime = new Date(p.createdAt).getTime();
-      return paymentTime >= start && paymentTime <= end;
-    });
-
-    const totalCount = filteredPayments.length;
-    const startIndex = (currentPage - 1) * pageSize;
-    const paginatedPayments = filteredPayments.slice(
-      startIndex,
-      startIndex + pageSize
-    );
-
-    setPayments(paginatedPayments);
-    setTotalItems(totalCount);
   };
 
   useEffect(() => {
@@ -129,17 +76,7 @@ const PaymentsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleQrCodeGenerated = (newPaymentData: PaymentFormData) => {
-    const newPayment: Payment = {
-      id: `pay-${Date.now()}`,
-      status: "pending",
-      value: newPaymentData.value,
-      customerId: newPaymentData.customerId,
-      createdAt: new Date().toISOString(),
-      Customer: mockCustomers.find((c) => c.id === newPaymentData.customerId),
-    };
-
-    mockPayments.unshift(newPayment);
+  const handlePixPaymentCreated = () => {
     fetchPayments();
   };
 
@@ -159,7 +96,7 @@ const PaymentsPage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Gerenciar Pagamentos</h1>
-        <Button onClick={handleOpenModal}>Gerar QR Code de Pagamento</Button>
+        <Button onClick={handleOpenModal}>Gerar Novo Pagamento</Button>
       </div>
 
       <div className="bg-gray-100 p-4 rounded-md space-y-4">
@@ -246,7 +183,7 @@ const PaymentsPage: React.FC = () => {
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         customers={customers}
-        onQrCodeGenerated={handleQrCodeGenerated}
+        onPixPaymentCreated={handlePixPaymentCreated}
       />
     </div>
   );

@@ -9,7 +9,6 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import type { Customer } from "../types/customer";
@@ -17,23 +16,22 @@ import { SearchableSelect } from "./ui/searchable-select";
 import { paymentSchema } from "../validators/payment";
 import type { PaymentFormData } from "../types/payment-form-data";
 import toast from "react-hot-toast";
-import type { QrCodeData } from "../types/qr-code-data";
+import axios from "../lib/axios";
+import copy from "../assets/copy.png";
+import type { PixData } from "../types/pix-data";
 
-const QR_API_URL =
-  "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=";
-
-interface QrCodeModalProps {
+interface PaymentFormProps {
   open: boolean;
   onClose: () => void;
   customers: Customer[];
-  onQrCodeGenerated: (newPayment: PaymentFormData) => void;
+  onPixPaymentCreated: () => void;
 }
 
-export const PaymentForm: React.FC<QrCodeModalProps> = ({
+export const PaymentForm: React.FC<PaymentFormProps> = ({
   open,
   onClose,
   customers,
-  onQrCodeGenerated,
+  onPixPaymentCreated,
 }) => {
   const {
     register,
@@ -45,98 +43,106 @@ export const PaymentForm: React.FC<QrCodeModalProps> = ({
   } = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      title: "",
-      description: "",
       value: 0,
       customerId: "",
     },
   });
 
-  const [qrCodeData, setQrCodeData] = useState<QrCodeData | null>(null);
+  const [pixData, setPixData] = useState<PixData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const customerId = watch("customerId");
 
   useEffect(() => {
     if (!open) {
       reset({
-        title: "",
-        description: "",
         value: 0,
         customerId: "",
       });
-      setQrCodeData(null);
+      setPixData(null);
     }
   }, [open, reset]);
 
   const submitHandler = async (data: PaymentFormData) => {
     setIsSubmitting(true);
-    setQrCodeData(null);
+    setPixData(null);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const paymentLink = `https://sandbox.mercadopago.com.br/payment?id=${Date.now()}`;
-
-      const qrCodeData: QrCodeData = {
-        qrCode: paymentLink,
-        paymentId: `MP-${Date.now()}`,
-      };
-
-      setQrCodeData(qrCodeData);
-      onQrCodeGenerated(data);
-      toast.success("QR Code de pagamento gerado com sucesso!");
-    } catch {
-      toast.error("Erro ao gerar QR Code de pagamento.");
+      const response = await axios.post<PixData>("/payment", data);
+      setPixData(response.data);
+      onPixPaymentCreated();
+      toast.success("Pagamento Pix gerado com sucesso!");
+    } catch (error) {
+      console.error("Error creating pix payment:", error);
+      toast.error("Erro ao gerar pagamento Pix.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    setQrCodeData(null);
+    setPixData(null);
     onClose();
+  };
+
+  const copyToClipboard = () => {
+    if (pixData?.copyPasteCode) {
+      navigator.clipboard.writeText(pixData.copyPasteCode);
+      toast.success("Código Copia e Cola copiado!");
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Gerar QR Code de Pagamento</DialogTitle>
+          <DialogTitle>Gerar Novo Pagamento Pix</DialogTitle>
         </DialogHeader>
 
-        {qrCodeData ? (
-          <div className="flex flex-col items-center space-y-4">
-            <p className="text-lg font-semibold text-green-600">
-              Código de Pagamento Criado!
+        {pixData ? (
+          <div className="flex flex-col items-center space-y-6 p-4">
+            <p className="text-lg font-semibold text-green-600 text-center">
+              Pagamento Pix Gerado!
             </p>
-            <img
-              src={`${QR_API_URL}${encodeURIComponent(qrCodeData.qrCode)}`}
-              alt="QR Code de Pagamento"
-              className="size-48 border p-2"
-            />
+
+            <div className="flex flex-col items-center space-y-2">
+              <p className="font-medium">Escaneie o QR Code</p>
+              <img
+                src={`data:image/png;base64,${pixData.qrCode}`}
+                alt="QR Code Pix"
+                className="size-48 border p-2 rounded-lg"
+              />
+            </div>
+
+            <div className="w-full space-y-2">
+              <Label htmlFor="pix-code">Ou use o Código Copia e Cola</Label>
+              <div className="relative">
+                <Input
+                  id="pix-code"
+                  type="text"
+                  readOnly
+                  value={pixData.copyPasteCode}
+                  className="w-full pr-12 text-xs break-all"
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  className="absolute right-1 top-1 h-7 w-7 p-1"
+                  onClick={copyToClipboard}
+                  title="Copiar código Pix"
+                >
+                  <img src={copy} alt="Copiar" className="size-4" />
+                </Button>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="button" onClick={handleClose}>
+                Fechar
+              </Button>
+            </DialogFooter>
           </div>
         ) : (
           <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
-            <div>
-              <Label className="mb-2" htmlFor="title">
-                Título do Pagamento
-              </Label>
-              <Input id="title" {...register("title")} />
-              {errors.title && (
-                <p className="text-red-500 text-sm">{errors.title.message}</p>
-              )}
-            </div>
-            <div>
-              <Label className="mb-2" htmlFor="description">
-                Descrição (Opcional)
-              </Label>
-              <Textarea id="description" {...register("description")} />
-              {errors.description && (
-                <p className="text-red-500 text-sm">
-                  {errors.description.message}
-                </p>
-              )}
-            </div>
-
             <div>
               <Label className="mb-2" htmlFor="value">
                 Valor (R$)
@@ -174,7 +180,7 @@ export const PaymentForm: React.FC<QrCodeModalProps> = ({
                 Cancelar
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Gerando..." : "Gerar QR Code"}
+                {isSubmitting ? "Gerando..." : "Gerar pagamento Pix"}
               </Button>
             </DialogFooter>
           </form>

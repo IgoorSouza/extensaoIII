@@ -101,7 +101,11 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
             <Label className="mb-2" htmlFor="description">
               Descrição
             </Label>
-            <Textarea id="description" {...register("description")} />
+            <Textarea
+              id="description"
+              {...register("description")}
+              className="break-all"
+            />
             {errors.description && (
               <p className="text-red-500 text-sm">
                 {errors.description.message}

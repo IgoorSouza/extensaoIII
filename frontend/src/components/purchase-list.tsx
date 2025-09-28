@@ -34,9 +34,9 @@ export const PurchaseList: React.FC<PurchaseListProps> = ({
         <TableRow>
           <TableHead>Título</TableHead>
           <TableHead>Descrição</TableHead>
+          <TableHead>Cliente</TableHead>
           <TableHead>Valor</TableHead>
           <TableHead>Data</TableHead>
-          <TableHead>Cliente</TableHead>
           <TableHead className="text-center">Ações</TableHead>
         </TableRow>
       </TableHeader>
@@ -52,11 +52,16 @@ export const PurchaseList: React.FC<PurchaseListProps> = ({
             <TableRow key={purchase.id}>
               <TableCell>{purchase.title}</TableCell>
               <TableCell>{purchase.description}</TableCell>
-              <TableCell>{purchase.value}</TableCell>
+              <TableCell>{getCustomerName(purchase.customerId)}</TableCell>
+              <TableCell>
+                {purchase.value.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </TableCell>
               <TableCell>
                 {new Date(purchase.date).toLocaleDateString("pt-BR")}
               </TableCell>
-              <TableCell>{getCustomerName(purchase.customerId)}</TableCell>
               <TableCell className="text-center space-x-2">
                 <Button variant="outline" onClick={() => onEdit(purchase)}>
                   Editar

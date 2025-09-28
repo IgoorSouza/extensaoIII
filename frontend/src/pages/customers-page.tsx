@@ -24,6 +24,7 @@ const CustomersPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [filterName, setFilterName] = useState("");
   const [filterEmail, setFilterEmail] = useState("");
+  const [filterCpf, setFilterCpf] = useState("");
   const [filterPhone, setFilterPhone] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -36,6 +37,7 @@ const CustomersPage: React.FC = () => {
     params.append("pageSize", String(pageSize));
     if (filterName) params.append("name", filterName);
     if (filterEmail) params.append("email", filterEmail);
+    if (filterCpf) params.append("cpf", filterCpf);
     if (filterPhone) params.append("phone", filterPhone);
 
     const { data } = await axios.get<{
@@ -49,7 +51,7 @@ const CustomersPage: React.FC = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, [filterName, filterEmail, filterPhone, currentPage, pageSize]);
+  }, [filterName, filterEmail, filterCpf, filterPhone, currentPage, pageSize]);
 
   const handleAdd = () => {
     setSelectedCustomer(null);
@@ -115,7 +117,7 @@ const CustomersPage: React.FC = () => {
 
       <div className="bg-gray-100 p-4 rounded-md space-y-4">
         <h2 className="text-xl font-bold">Filtros</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <Label htmlFor="name" className="mb-2">
               Nome
@@ -137,6 +139,18 @@ const CustomersPage: React.FC = () => {
             />
           </div>
           <div>
+            <Label htmlFor="cpf" className="mb-2">
+              CPF
+            </Label>
+            <Input
+              id="cpf"
+              value={filterCpf}
+              type="number"
+              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              onChange={(e) => setFilterCpf(e.target.value)}
+            />
+          </div>
+          <div>
             <Label htmlFor="phone" className="mb-2">
               Telefone
             </Label>
@@ -151,7 +165,6 @@ const CustomersPage: React.FC = () => {
 
       <CustomerList
         customers={customers}
-        purchases={[]}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />

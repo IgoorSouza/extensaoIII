@@ -1,6 +1,4 @@
-import React, { useState } from "react";
 import { type Customer } from "../types/customer";
-import { type Purchase } from "../types/purchase";
 import {
   Table,
   TableBody,
@@ -10,32 +8,18 @@ import {
   TableRow,
 } from "./ui/table";
 import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "./ui/dialog";
 
 interface CustomerListProps {
   customers: Customer[];
-  purchases: Purchase[];
   onEdit: (customer: Customer) => void;
   onDelete: (id: string) => void;
 }
 
 export const CustomerList: React.FC<CustomerListProps> = ({
   customers,
-  purchases,
   onEdit,
   onDelete,
 }) => {
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null
-  );
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const formatCpf = (cpf: string) => {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   };
@@ -44,114 +28,53 @@ export const CustomerList: React.FC<CustomerListProps> = ({
     if (phone.length === 11) {
       return phone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
     }
+    
     return phone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
   };
 
-  const getCustomerTotalPurchases = (customerId: string) => {
-    return purchases
-      .filter((p) => p.customerId === customerId)
-      .reduce((acc, p) => acc + p.value, 0);
-  };
-
-  const handleOpenModal = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setIsModalOpen(true);
-  };
-
   return (
-    <>
-      <Table>
-        <TableHeader>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Nome</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>CPF</TableHead>
+          <TableHead>Telefone</TableHead>
+          <TableHead className="text-center">Ações</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {customers.length === 0 ? (
           <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>CPF</TableHead>
-            <TableHead>Telefone</TableHead>
-            <TableHead className="text-center">Ações</TableHead>
+            <TableCell colSpan={5} className="text-center">
+              Nenhum cliente cadastrado.
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {customers.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center">
-                Nenhum cliente cadastrado.
+        ) : (
+          customers.map((customer) => (
+            <TableRow key={customer.id} className="hover:bg-gray-100">
+              <TableCell>{customer.name}</TableCell>
+              <TableCell>{customer.email}</TableCell>
+              <TableCell>{formatCpf(customer.cpf)}</TableCell>
+              <TableCell>{formatPhone(customer.phone)}</TableCell>
+              <TableCell
+                className="text-center space-x-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button variant="outline" onClick={() => onEdit(customer)}>
+                  Editar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => onDelete(customer.id!)}
+                >
+                  Excluir
+                </Button>
               </TableCell>
             </TableRow>
-          ) : (
-            customers.map((customer) => (
-              <TableRow
-                key={customer.id}
-                className="cursor-pointer hover:bg-gray-100"
-                onClick={() => handleOpenModal(customer)}
-              >
-                <TableCell>{customer.name}</TableCell>
-                <TableCell>{customer.email}</TableCell>
-                <TableCell>{formatCpf(customer.cpf)}</TableCell>
-                <TableCell>{formatPhone(customer.phone)}</TableCell>
-                <TableCell
-                  className="text-center space-x-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Button variant="outline" onClick={() => onEdit(customer)}>
-                    Editar
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => onDelete(customer.id!)}
-                  >
-                    Excluir
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-lg max-h-3/4 overflow-y-scroll">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Cliente</DialogTitle>
-          </DialogHeader>
-
-          {selectedCustomer && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <p>
-                  <strong>Nome:</strong> {selectedCustomer.name}
-                </p>
-                <p>
-                  <strong>Email:</strong> {selectedCustomer.email}
-                </p>
-                <p>
-                  <strong>CPF:</strong> {formatCpf(selectedCustomer.cpf)}
-                </p>
-                <p>
-                  <strong>Telefone:</strong> {formatPhone(selectedCustomer.phone)}
-                </p>
-              </div>
-
-              <div className="mt-4">
-                <h3 className="font-semibold">
-                  Total em compras:{" "}
-                  {getCustomerTotalPurchases(
-                    selectedCustomer.id!
-                  ).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
-                </h3>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-              Fechar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          ))
+        )}
+      </TableBody>
+    </Table>
   );
 };
