@@ -48,9 +48,19 @@ export default function paymentController(app: Express) {
 
   router.post("/webhook", async (req, res, next) => {
     try {
-      console.log(req.body);
-      console.log(req.query);
-      console.log(req.headers);
+      const xSignature = req.header("x-signature");
+      const xRequestId = req.header("x-request-id");
+      const { "data.id": paymentId, type } = req.query as {
+        "data.id": string | undefined;
+        type: string | undefined;
+      };
+
+      await paymentService.handleWebhookNotification(
+        xSignature,
+        xRequestId,
+        type,
+        paymentId
+      );
 
       res.status(200).send("OK");
     } catch (error) {

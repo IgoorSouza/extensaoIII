@@ -3,8 +3,10 @@ import * as paymentRepository from "../repositories/payment-repository";
 import * as customerService from "./customer-service";
 import { PaymentData } from "../types/payment";
 import { NotFoundException } from "../exceptions/not-found-exception";
+import { UnauthorizedException } from "../exceptions/unauthorized-exception";
+import { BadRequestException } from "../exceptions/bad-request-exception";
+import crypto from "crypto";
 
-const mercadoPagoWebhookKey = process.env.MERCADO_PAGO_WEBHOOK_KEY;
 const mercadoPagoClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADO_PAGO_API_TOKEN!,
 });
@@ -105,35 +107,78 @@ export async function createPixPayment(paymentData: PaymentData) {
 }
 
 export async function handleWebhookNotification(
-  webhookKey: string,
-  paymentId: string
+  xSignature?: string,
+  xRequestId?: string,
+  type?: string,
+  paymentId?: string
 ) {
-  if (mercadoPagoWebhookKey !== webhookKey) {
-    console.warn(`Request with invalid secret key: ${paymentId}`);
-    return;
-  }
+  validateWebhookRequest(xSignature, xRequestId, type, paymentId);
 
-  const payment = await paymentRepository.findByMercadoPagoId(paymentId);
+  const payment = await paymentRepository.findByMercadoPagoId(paymentId!);
 
   if (!payment) {
-    console.warn(`Payment not found for Mercado Pago ID: ${paymentId}`);
-    throw new NotFoundException("Payment not found");
+    throw new NotFoundException(
+      `Payment not found for Mercado Pago ID: ${paymentId}`
+    );
   }
 
   const mercadoPagoPaymentDetails = await getMercadoPagoPaymentDetails(
-    paymentId
+    paymentId!
   );
 
   if (!mercadoPagoPaymentDetails) {
-    console.error(
+    throw new Error(
       `Failed to retrieve details for Mercado Pago ID: ${paymentId}`
     );
-    throw new Error("Failed to retrieve payment details from Mercado Pago.");
   }
 
   const newStatus = mercadoPagoPaymentDetails.status;
 
   if (newStatus && payment.status !== newStatus) {
     await paymentRepository.updateStatus(payment.id!, newStatus);
+  }
+}
+
+function validateWebhookRequest(
+  xSignature?: string,
+  xRequestId?: string,
+  type?: string,
+  paymentId?: string
+) {
+  if (!xSignature || !xRequestId) {
+    throw new BadRequestException("Signature headers are required.");
+  }
+
+  if (type !== "payment") {
+    throw new BadRequestException("Invalid request type.");
+  }
+
+  if (!paymentId) {
+    throw new BadRequestException("Payment id not found in request.");
+  }
+
+  const parts = xSignature.split(",");
+  let ts: string | undefined;
+  let v1: string | undefined;
+
+  for (const part of parts) {
+    const [k, v] = part.split("=");
+    if (k === "ts") ts = v;
+    else if (k === "v1") v1 = v;
+  }
+
+  if (!ts || !v1) {
+    throw new BadRequestException("Invalid x-signature format.");
+  }
+
+  const manifest = `id:${paymentId};request-id:${xRequestId};ts:${ts};`;
+  const secret = process.env.MERCADO_PAGO_WEBHOOK_KEY!;
+  const computed = crypto
+    .createHmac("sha256", secret)
+    .update(manifest)
+    .digest("hex");
+
+  if (computed !== v1) {
+    throw new UnauthorizedException("Invalid signature.");
   }
 }
