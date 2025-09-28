@@ -8,17 +8,24 @@ export async function getCustomers(
   pageSize?: string,
   name?: string,
   email?: string,
+  cpf?: string,
   phone?: string
 ) {
   const pageNumber = Math.max(parseInt(page || "1") - 1, 0);
   const pageSizeNumber = Math.max(parseInt(pageSize || "10"), 1);
 
   const [customers, totalCount] = await Promise.all([
-    customerRepository.findPage(pageNumber, pageSizeNumber, name, email, phone),
-    customerRepository.findTotalCount(name, email, phone),
+    customerRepository.findPage(pageNumber, pageSizeNumber, name, email, cpf, phone),
+    customerRepository.findTotalCount(name, email, cpf, phone),
   ]);
 
   return { customers, totalCount };
+}
+
+export async function getCustomerById(id: string) {
+  const customer = await customerRepository.findById(id);
+  if (!customer) throw new NotFoundException("Customer not found.");
+  return customer;
 }
 
 export async function createCustomer(customerData: CustomerData) {

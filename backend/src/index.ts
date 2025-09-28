@@ -3,6 +3,7 @@ import cors from "cors";
 import customerController from "./controllers/customer-controller";
 import { handleException } from "./middlewares/exception-handler";
 import purchaseController from "./controllers/purchase-controller";
+import paymentController from "./controllers/payment-controller";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(
 
 customerController(app);
 purchaseController(app);
+paymentController(app);
 
 app.use(handleException);
 

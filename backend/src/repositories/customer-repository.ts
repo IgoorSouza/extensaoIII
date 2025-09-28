@@ -6,6 +6,7 @@ export async function findPage(
   pageSize: number,
   name?: string,
   email?: string,
+  cpf?: string,
   phone?: string
 ) {
   return await prisma.customer.findMany({
@@ -20,6 +21,10 @@ export async function findPage(
         contains: email,
         mode: "insensitive",
       },
+      cpf: {
+        contains: cpf,
+        mode: "insensitive",
+      },
       phone: {
         contains: phone,
         mode: "insensitive",
@@ -28,7 +33,12 @@ export async function findPage(
   });
 }
 
-export async function findTotalCount(name?: string, email?: string, phone?: string) {
+export async function findTotalCount(
+  name?: string,
+  email?: string,
+  cpf?: string,
+  phone?: string
+) {
   return await prisma.customer.count({
     where: {
       name: {
@@ -37,6 +47,10 @@ export async function findTotalCount(name?: string, email?: string, phone?: stri
       },
       email: {
         contains: email,
+        mode: "insensitive",
+      },
+      cpf: {
+        contains: cpf,
         mode: "insensitive",
       },
       phone: {

@@ -9,11 +9,12 @@ export default function customerController(app: Express) {
 
   router.get("/", async (req, res, next) => {
     try {
-      const { page, pageSize, name, email, phone } = req.query as {
+      const { page, pageSize, name, email, cpf, phone } = req.query as {
         page?: string;
         pageSize?: string;
         name?: string;
         email?: string;
+        cpf?: string;
         phone?: string;
       };
 
@@ -22,6 +23,7 @@ export default function customerController(app: Express) {
         pageSize,
         name,
         email,
+        cpf,
         phone
       );
 
