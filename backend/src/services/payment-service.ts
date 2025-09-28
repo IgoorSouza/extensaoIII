@@ -78,7 +78,7 @@ export async function createPixPayment(paymentData: PaymentData) {
           number: customer.cpf,
         },
       },
-      notification_url: `${process.env.BACKEND_URL}/payment/webhook`,
+      notification_url: `${process.env.APP_URL}/payment/webhook`,
     },
   });
 
