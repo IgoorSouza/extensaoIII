@@ -60,7 +60,8 @@ export const PaymentList: React.FC<PaymentListProps> = ({
           <TableHead>Cliente</TableHead>
           <TableHead>Valor</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Data Criação</TableHead>
+          <TableHead>Data de Criação</TableHead>
+          <TableHead>Última Atualização</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -85,6 +86,15 @@ export const PaymentList: React.FC<PaymentListProps> = ({
               <TableCell>{getStatusBadge(payment.status)}</TableCell>
               <TableCell>
                 {new Date(payment.createdAt).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </TableCell>
+              <TableCell>
+                {new Date(payment.updatedAt).toLocaleDateString("pt-BR", {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
