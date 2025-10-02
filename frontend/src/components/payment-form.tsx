@@ -18,6 +18,7 @@ import type { PaymentFormData } from "../types/payment-form-data";
 import toast from "react-hot-toast";
 import axios from "../lib/axios";
 import copy from "../assets/copy.png";
+import whatsapp from "../assets/whatsapp.png";
 import type { PixData } from "../types/pix-data";
 
 interface PaymentFormProps {
@@ -51,6 +52,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const customerId = watch("customerId");
+  const value = watch("value");
 
   useEffect(() => {
     if (!open) {
@@ -88,6 +90,25 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       navigator.clipboard.writeText(pixData.copyPasteCode);
       toast.success("Código Copia e Cola copiado!");
     }
+  };
+
+  const selectedCustomer = customers.find((c) => c.id === customerId);
+
+  const handleSendViaWhatsApp = () => {
+    const formattedValue = value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+    const message = `Olá! Segue o código PIX para o seu pagamento no valor de ${formattedValue}: \n\n${
+      pixData!.copyPasteCode
+    }\n\nObrigado!`;
+    const encodedMessage = encodeURIComponent(message);
+
+    const whatsappUrl = `https://wa.me/55${
+      selectedCustomer!.phone
+    }?text=${encodedMessage}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
@@ -135,9 +156,23 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" onClick={handleClose}>
+            <DialogFooter className="flex-col justify-end w-full">
+              <Button
+                type="button"
+                onClick={handleClose}
+                className="w-full sm:w-auto"
+              >
                 Fechar
+              </Button>
+
+              <Button
+                type="button"
+                className="bg-green-600 hover:bg-green-700"
+                onClick={handleSendViaWhatsApp}
+                disabled={!selectedCustomer?.phone}
+              >
+                <img src={whatsapp} alt="WhatsApp" className="size-5" />
+                Enviar por WhatsApp
               </Button>
             </DialogFooter>
           </div>
