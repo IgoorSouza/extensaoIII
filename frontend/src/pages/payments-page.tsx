@@ -21,6 +21,7 @@ const PaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedPaymentToView, setSelectedPaymentToView] = useState<Payment | null>(null);
   const [filterCustomerId, setFilterCustomerId] = useState("all-customers");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
@@ -73,6 +74,17 @@ const PaymentsPage: React.FC = () => {
   }, [filterCustomerId, filterStartDate, filterEndDate, currentPage, pageSize]);
 
   const handleOpenModal = () => {
+    setSelectedPaymentToView(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPaymentToView(null);
+  };
+
+  const handleViewPayment = (payment: Payment) => {
+    setSelectedPaymentToView(payment);
     setIsModalOpen(true);
   };
 
@@ -140,7 +152,11 @@ const PaymentsPage: React.FC = () => {
         </div>
       </div>
 
-      <PaymentList payments={payments} customers={customers} />
+      <PaymentList 
+        payments={payments} 
+        customers={customers} 
+        onRowClick={handleViewPayment}
+      />
 
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-2">
@@ -181,9 +197,10 @@ const PaymentsPage: React.FC = () => {
 
       <PaymentForm
         open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         customers={customers}
         onPixPaymentCreated={handlePixPaymentCreated}
+        initialPaymentData={selectedPaymentToView}
       />
     </div>
   );

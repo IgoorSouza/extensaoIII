@@ -20,12 +20,14 @@ import axios from "../lib/axios";
 import copy from "../assets/copy.png";
 import whatsapp from "../assets/whatsapp.png";
 import type { PixData } from "../types/pix-data";
+import type { Payment } from "../types/payment";
 
 interface PaymentFormProps {
   open: boolean;
   onClose: () => void;
   customers: Customer[];
   onPixPaymentCreated: () => void;
+  initialPaymentData?: Payment | null;
 }
 
 export const PaymentForm: React.FC<PaymentFormProps> = ({
@@ -33,6 +35,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   onClose,
   customers,
   onPixPaymentCreated,
+  initialPaymentData,
 }) => {
   const {
     register,
@@ -55,14 +58,31 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const value = watch("value");
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      if (initialPaymentData) {
+        setPixData({
+          copyPasteCode: initialPaymentData.copyPasteCode,
+          qrCode: initialPaymentData.qrCode,
+        });
+        reset({
+          value: initialPaymentData.value,
+          customerId: initialPaymentData.customerId,
+        });
+      } else {
+        reset({
+          value: 0,
+          customerId: "",
+        });
+        setPixData(null);
+      }
+    } else {
       reset({
         value: 0,
         customerId: "",
       });
       setPixData(null);
     }
-  }, [open, reset]);
+  }, [open, reset, initialPaymentData]);
 
   const submitHandler = async (data: PaymentFormData) => {
     setIsSubmitting(true);
@@ -115,7 +135,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Gerar Novo Pagamento Pix</DialogTitle>
+          <DialogTitle>
+            {initialPaymentData
+              ? "Detalhes do Pagamento Pix"
+              : "Gerar Novo Pagamento Pix"}
+          </DialogTitle>
         </DialogHeader>
 
         {pixData ? (

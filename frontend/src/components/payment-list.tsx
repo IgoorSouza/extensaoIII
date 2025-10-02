@@ -13,11 +13,13 @@ import {
 interface PaymentListProps {
   payments: Payment[];
   customers: Customer[];
+  onRowClick: (payment: Payment) => void;
 }
 
 export const PaymentList: React.FC<PaymentListProps> = ({
   payments,
   customers,
+  onRowClick,
 }) => {
   const getCustomerName = (customerId: string) =>
     customers.find((u) => u.id === customerId)?.name ||
@@ -73,7 +75,11 @@ export const PaymentList: React.FC<PaymentListProps> = ({
           </TableRow>
         ) : (
           payments.map((payment) => (
-            <TableRow key={payment.id}>
+            <TableRow
+              key={payment.id}
+              onClick={() => onRowClick(payment)}
+              className="cursor-pointer hover:bg-gray-100"
+            >
               <TableCell>
                 {payment.Customer?.name || getCustomerName(payment.customerId)}
               </TableCell>
