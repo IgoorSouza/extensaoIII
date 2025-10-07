@@ -211,7 +211,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                 <span className="font-semibold">
                   Valor pendente de pagamento do cliente:
                 </span>{" "}
-                {selectedCustomer?.totalPurchasesValue.toLocaleString("pt-BR", {
+                {selectedCustomer?.totalPurchasesValue?.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
                 })}
