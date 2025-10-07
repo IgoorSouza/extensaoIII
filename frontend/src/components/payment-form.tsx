@@ -55,7 +55,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const customerId = watch("customerId");
-  const value = watch("value");
 
   useEffect(() => {
     if (open) {
@@ -115,19 +114,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const selectedCustomer = customers.find((c) => c.id === customerId);
 
   const handleSendViaWhatsApp = () => {
-    const formattedValue = value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-
-    const message = `Olá! Segue o código PIX para o seu pagamento no valor de ${formattedValue}: \n\n${
-      pixData!.copyPasteCode
-    }\n\nObrigado!`;
-    const encodedMessage = encodeURIComponent(message);
-
+    const encodedMessage = encodeURIComponent(pixData!.copyPasteCode);
     const whatsappUrl = `https://wa.me/55${
       selectedCustomer!.phone
     }?text=${encodedMessage}`;
+
     window.open(whatsappUrl, "_blank");
   };
 
@@ -144,10 +135,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
         {pixData ? (
           <div className="flex flex-col items-center space-y-6 p-4">
-            <p className="text-lg font-semibold text-green-600 text-center">
-              Pagamento Pix Gerado!
-            </p>
-
             <div className="flex flex-col items-center space-y-2">
               <p className="font-medium">Escaneie o QR Code</p>
               <img
@@ -203,21 +190,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         ) : (
           <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
             <div>
-              <Label className="mb-2" htmlFor="value">
-                Valor (R$)
-              </Label>
-              <Input
-                id="value"
-                type="number"
-                step="0.01"
-                {...register("value", { valueAsNumber: true })}
-              />
-              {errors.value && (
-                <p className="text-red-500 text-sm">{errors.value.message}</p>
-              )}
-            </div>
-
-            <div>
               <Label className="mb-2" htmlFor="customerId">
                 Cliente
               </Label>
@@ -231,6 +203,34 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                 <p className="text-red-500 text-sm">
                   {errors.customerId.message}
                 </p>
+              )}
+            </div>
+
+            {customerId && (
+              <p className="text-sm">
+                <span className="font-semibold">
+                  Valor pendente de pagamento do cliente:
+                </span>{" "}
+                {selectedCustomer?.totalPurchasesValue.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </p>
+            )}
+
+            <div>
+              <Label className="mb-2" htmlFor="value">
+                Valor (R$)
+              </Label>
+
+              <Input
+                id="value"
+                type="number"
+                step="0.01"
+                {...register("value", { valueAsNumber: true })}
+              />
+              {errors.value && (
+                <p className="text-red-500 text-sm">{errors.value.message}</p>
               )}
             </div>
 

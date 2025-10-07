@@ -30,6 +30,21 @@ export async function findPage(
         mode: "insensitive",
       },
     },
+    include: {
+      purchases: {
+        select: {
+          value: true,
+        },
+      },
+      payments: {
+        select: {
+          value: true,
+        },
+        where: {
+          status: "approved"
+        }
+      },
+    },
   });
 }
 

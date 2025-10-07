@@ -4,4 +4,5 @@ export interface Customer {
   email: string;
   cpf: string;
   phone: string;
+  totalPurchasesValue: number;
 }

@@ -15,11 +15,28 @@ export async function getCustomers(
   const pageSizeNumber = Math.max(parseInt(pageSize || "10"), 1);
 
   const [customers, totalCount] = await Promise.all([
-    customerRepository.findPage(pageNumber, pageSizeNumber, name, email, cpf, phone),
+    customerRepository.findPage(
+      pageNumber,
+      pageSizeNumber,
+      name,
+      email,
+      cpf,
+      phone
+    ),
     customerRepository.findTotalCount(name, email, cpf, phone),
   ]);
 
-  return { customers, totalCount };
+  return {
+    customers: customers.map((customer) => ({
+      ...customer,
+      purchases: undefined,
+      payments: undefined,
+      totalPurchasesValue:
+        customer.purchases.reduce((acc, purchase) => acc + purchase.value, 0) -
+        customer.payments.reduce((acc, payment) => acc + payment.value, 0),
+    })),
+    totalCount,
+  };
 }
 
 export async function getCustomerById(id: string) {
