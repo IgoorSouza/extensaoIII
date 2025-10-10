@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      login(data);
+      await login(data);
       toast.success("Login realizado com sucesso!");
       navigate("/");
     } catch (error: unknown) {
