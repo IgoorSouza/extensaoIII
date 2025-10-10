@@ -5,8 +5,8 @@ import LoginPage from "./pages/login-page";
 import TopBar from "./components/top-bar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { AuthProvider } from "./context/auth-context";
 import { ProtectedRoute } from "./components/protected-route";
+import { AuthProvider } from "./context/auth/auth-provider";
 
 function App() {
   return (

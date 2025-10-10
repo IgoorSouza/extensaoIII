@@ -1,18 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { useAuth } from "../context/auth-context";
 
 const TopBar: React.FC = () => {
   const location = useLocation();
-  const { authData } = useAuth();
+
+  if (location.pathname === "/login") return;
 
   const links = [
     { label: "Clientes", path: "/" },
     { label: "Compras", path: "/purchases" },
     { label: "Pagamentos", path: "/payments" },
   ];
-
-  if (!authData) links.push({ label: "Login", path: "/login" },);
 
   return (
     <header className="w-full bg-black shadow-md px-10 py-4 flex items-center justify-between">

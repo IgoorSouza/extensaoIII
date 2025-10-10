@@ -1,21 +1,15 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
-import api from "../lib/axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { AxiosError } from "axios";
 import type { LoginFormData } from "../types/login-form-data";
-import { useAuth } from "../context/auth-context";
-
-const loginSchema = z.object({
-  email: z.email("Email inválido").min(1, "O campo 'email' é obrigatório."),
-  password: z.string().min(6, "A senha deve ter pelo menos 6 dígitos."),
-});
+import { useAuth } from "../hooks/use-auth";
+import { loginSchema } from "../validators/login";
+import { AxiosError } from "axios";
 
 const LoginPage: React.FC = () => {
   const { login, authData } = useAuth();
@@ -37,18 +31,24 @@ const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
+
     try {
-      const response = await api.post("/auth", data);
-      login(response.data);
+      login(data);
       toast.success("Login realizado com sucesso!");
       navigate("/");
-    } catch (error) {
-      let errorMessage = "Erro ao fazer login. Tente novamente.";
-      if (error instanceof AxiosError && error.response) {
-        if (error.response.status === 401) {
-          errorMessage = "Credenciais inválidas.";
+    } catch (error: unknown) {
+      let errorMessage = "Ocorreu um erro ao fazer login. Tente novamente.";
+
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 404) {
+          errorMessage = "Usuário não encontrado.";
+        }
+
+        if (error.response?.status === 401) {
+          errorMessage = "Senha incorreta.";
         }
       }
+
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -79,7 +79,9 @@ const LoginPage: React.FC = () => {
             )}
           </div>
           <div>
-            <Label htmlFor="password" className="mb-2">Senha</Label>
+            <Label htmlFor="password" className="mb-2">
+              Senha
+            </Label>
             <Input
               id="password"
               type="password"
