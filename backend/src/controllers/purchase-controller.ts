@@ -3,9 +3,11 @@ import * as purchaseService from "../services/purchase-service";
 import { PurchaseData } from "../types/purchase";
 import { validateRequestBody } from "../middlewares/request-body-validator";
 import { purchaseSchema } from "../validators/purchase";
+import authMiddleware from "../middlewares/auth-middleware";
 
 export default function purchaseController(app: Express) {
   const router = Router();
+  router.use(authMiddleware);
 
   router.get("/", async (req, res, next) => {
     try {

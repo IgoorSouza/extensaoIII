@@ -4,6 +4,7 @@ import customerController from "./controllers/customer-controller";
 import { handleException } from "./middlewares/exception-handler";
 import purchaseController from "./controllers/purchase-controller";
 import paymentController from "./controllers/payment-controller";
+import authController from "./controllers/auth-controller";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(
   })
 );
 
+authController(app);
 customerController(app);
 purchaseController(app);
 paymentController(app);

@@ -3,9 +3,11 @@ import * as paymentService from "../services/payment-service";
 import { PaymentData } from "../types/payment";
 import { validateRequestBody } from "../middlewares/request-body-validator";
 import { paymentSchema } from "../validators/payment";
+import authMiddleware from "../middlewares/auth-middleware";
 
 export default function paymentController(app: Express) {
   const router = Router();
+  router.use(authMiddleware);
 
   router.get("/", async (req, res, next) => {
     try {

@@ -3,9 +3,11 @@ import * as customerService from "../services/customer-service";
 import { CustomerData } from "../types/customer";
 import { validateRequestBody } from "../middlewares/request-body-validator";
 import { customerSchema } from "../validators/customer";
+import authMiddleware from "../middlewares/auth-middleware";
 
 export default function customerController(app: Express) {
   const router = Router();
+  router.use(authMiddleware);
 
   router.get("/", async (req, res, next) => {
     try {

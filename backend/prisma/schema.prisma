@@ -7,6 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       String     @id @default(uuid())
+  name     String
+  email    String     @unique
+  password String
+  UserRole UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id       String     @id @default(uuid())
+  name     String     @unique
+  UserRole UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+  userId String @map("user_id")
+  roleId String @map("role_id")
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
 model Customer {
   id        String     @id @default(uuid())
   name      String
