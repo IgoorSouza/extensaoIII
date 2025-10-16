@@ -3,7 +3,7 @@ import type { AuthData } from "../../types/auth-data";
 import type { LoginFormData } from "../../types/login-form-data";
 
 export interface AuthContextObject {
-  authData: AuthData | null;
+  authData: AuthData | null | undefined;
   login: (credentials: LoginFormData) => Promise<void>;
   logout: () => void;
 }

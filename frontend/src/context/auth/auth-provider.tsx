@@ -6,7 +6,9 @@ import type { LoginFormData } from "../../types/login-form-data";
 import { AuthContext } from "./auth-context";
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [authData, setAuthData] = useState<AuthData | null>(null);
+  const [authData, setAuthData] = useState<AuthData | null | undefined>(
+    undefined
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +19,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const data: AuthData = JSON.parse(storedAuthData);
         setAuthData(data);
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
+      } else {
+        setAuthData(null);
       }
     }
 
@@ -27,7 +31,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const { data } = await api.post("/auth", credentials);
 
     setAuthData(data);
-    api.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
+    api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
     localStorage.setItem("authData", JSON.stringify(data));
   }
 

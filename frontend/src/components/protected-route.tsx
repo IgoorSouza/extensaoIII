@@ -6,7 +6,7 @@ export const ProtectedRoute = ({ children }: PropsWithChildren) => {
   const { authData } = useAuth();
   const navigate = useNavigate();
 
-  if (!authData) {
+  if (authData == null) {
     navigate("/login", { replace: true });
     return null;
   }
