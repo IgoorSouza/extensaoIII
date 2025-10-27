@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../../lib/axios";
 import type { LoginFormData } from "../../types/login-form-data";
 import { AuthContext } from "./auth-context";
+import { type User } from "../../types/user";
+import { jwtDecode } from "jwt-decode";
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [authData, setAuthData] = useState<AuthData | null | undefined>(
@@ -13,10 +15,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     function loadAuthData() {
-      const storedAuthData = localStorage.getItem("authData");
+      const token = localStorage.getItem("token");
 
-      if (storedAuthData) {
-        const data: AuthData = JSON.parse(storedAuthData);
+      if (token) {
+        const jwtPayload = jwtDecode<User>(token);
+        const data: AuthData = {
+          user: { name: jwtPayload.name, email: jwtPayload.email },
+          token,
+        };
+        
         setAuthData(data);
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
       } else {
@@ -28,17 +35,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   async function login(credentials: LoginFormData) {
-    const { data } = await api.post("/auth", credentials);
+    const {
+      data: { token },
+    } = await api.post<AuthData>("/auth", credentials);
+    const userPayload = jwtDecode<User>(token);
 
-    setAuthData(data);
-    api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
-    localStorage.setItem("authData", JSON.stringify(data));
+    setAuthData({ user: userPayload, token });
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+    localStorage.setItem("token", token);
   }
 
   function logout() {
     setAuthData(null);
     delete api.defaults.headers.common.Authorization;
-    localStorage.removeItem("authData");
+    localStorage.removeItem("token");
     navigate("/login");
   }
 

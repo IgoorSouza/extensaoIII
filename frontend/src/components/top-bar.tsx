@@ -1,37 +1,43 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useAuth } from "../hooks/use-auth";
+import { MenuIcon } from "lucide-react";
 
-const TopBar: React.FC = () => {
+interface TopBarProps {
+  onToggleSidebar: () => void;
+}
+
+const TopBar: React.FC<TopBarProps> = ({ onToggleSidebar }) => {
   const location = useLocation();
+  const { authData, logout } = useAuth();
 
-  if (location.pathname === "/login") return;
-
-  const links = [
-    { label: "Clientes", path: "/" },
-    { label: "Compras", path: "/purchases" },
-    { label: "Pagamentos", path: "/payments" },
-  ];
+  if (location.pathname === "/login" || !authData) return null;
 
   return (
-    <header className="w-full bg-black shadow-md px-10 py-4 flex items-center justify-between">
-      <h1 className="text-xl font-bold text-white">Supermercado Líder</h1>
-      <nav className="flex items-center gap-4">
-        <div className="flex gap-2">
-          {links.map((link) => (
-            <Link key={link.path} to={link.path}>
-              <Button
-                className={
-                  location.pathname === link.path
-                    ? "bg-white text-black hover:bg-slate-200"
-                    : "bg-slate-600 hover:bg-slate-700"
-                }
-              >
-                {link.label}
-              </Button>
-            </Link>
-          ))}
+    <header className="fixed top-0 left-0 w-full bg-black shadow-md px-6 py-3 flex items-center justify-between z-20 h-14">
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleSidebar}
+          className="text-white hover:bg-slate-700"
+        >
+          <MenuIcon className="size-5" />
+        </Button>
+        
+        <h1 className="text-xl font-bold text-white">Supermercado Líder</h1>
+      </div>
+      
+      <div className="flex items-center gap-4 text-white">
+        <div className="flex flex-col items-end text-sm">
+          <span className="font-semibold">{authData.user.name}</span>
+          <span className="text-xs text-gray-300">{authData.user.email}</span>
         </div>
-      </nav>
+        
+        <Button onClick={logout} variant="destructive">
+          Sair
+        </Button>
+      </div>
     </header>
   );
 };

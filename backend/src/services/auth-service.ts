@@ -22,7 +22,6 @@ export async function login(authData: AuthData) {
   });
 
   return {
-    user: { ...user, password: undefined },
     token,
   };
 }
