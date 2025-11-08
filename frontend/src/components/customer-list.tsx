@@ -32,7 +32,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
     if (phone.length === 11) {
       return phone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
     }
-    
+
     return phone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
   };
 
@@ -41,51 +41,129 @@ export const CustomerList: React.FC<CustomerListProps> = ({
     setCustomerToDelete(null);
   };
 
+  if (customers.length === 0) {
+    return (
+      <div className="p-4 text-center border rounded-md">
+        Nenhum cliente cadastrado.
+      </div>
+    );
+  }
+
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>CPF</TableHead>
-            <TableHead>Telefone</TableHead>
-            <TableHead className="text-center">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {customers.length === 0 ? (
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={5} className="text-center">
-                Nenhum cliente cadastrado.
-              </TableCell>
+              <TableHead>Nome</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>CPF</TableHead>
+              <TableHead>Telefone</TableHead>
+              <TableHead>Valor Pendente</TableHead>
+              <TableHead className="text-center">Ações</TableHead>
             </TableRow>
-          ) : (
-            customers.map((customer) => (
+          </TableHeader>
+          <TableBody>
+            {customers.map((customer) => (
               <TableRow key={customer.id} className="hover:bg-gray-100">
                 <TableCell>{customer.name}</TableCell>
-                <TableCell>{customer.email}</TableCell>
+                <TableCell className="max-w-[180px] truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                  {customer.email}
+                </TableCell>
                 <TableCell>{formatCpf(customer.cpf)}</TableCell>
                 <TableCell>{formatPhone(customer.phone)}</TableCell>
+                <TableCell
+                  className={
+                    customer.totalPurchasesValue! > 0 ? "text-red-600" : ""
+                  }
+                >
+                  {customer.totalPurchasesValue?.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }) || "R$ 0,00"}
+                </TableCell>
                 <TableCell
                   className="text-center space-x-2"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Button variant="outline" onClick={() => onEdit(customer)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEdit(customer)}
+                  >
                     Editar
                   </Button>
                   <Button
                     variant="destructive"
+                    size="sm"
                     onClick={() => setCustomerToDelete(customer)}
                   >
                     Excluir
                   </Button>
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="md:hidden grid gap-4">
+        {customers.map((customer) => (
+          <div
+            key={customer.id}
+            className="bg-white border rounded-lg shadow-sm p-4 space-y-2 flex flex-col"
+          >
+            <h3 className="text-lg font-bold truncate">{customer.name}</h3>
+
+            <div className="space-y-1 text-sm border-t pt-2">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Email:</span>
+                <span>{customer.email}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">CPF:</span>
+                <span>{formatCpf(customer.cpf)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Telefone:</span>
+                <span>{formatPhone(customer.phone)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Valor Pendente:</span>
+                <span
+                  className={
+                    customer.totalPurchasesValue! > 0
+                      ? "font-semibold text-red-600"
+                      : ""
+                  }
+                >
+                  {customer.totalPurchasesValue?.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }) || "R$ 0,00"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-x-2 mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(customer)}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setCustomerToDelete(customer)}
+              >
+                Excluir
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <DeletionConfirmationModal
         title="Excluir Cliente"
