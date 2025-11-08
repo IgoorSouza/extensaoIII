@@ -16,6 +16,12 @@ import {
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
 import { SearchableSelect } from "../components/ui/searchable-select";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+} from "lucide-react";
 
 const PurchasesPage: React.FC = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -31,6 +37,7 @@ const PurchasesPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   const fetchPurchases = async () => {
     const params = new URLSearchParams();
@@ -129,60 +136,73 @@ const PurchasesPage: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Gerenciar Compras</h1>
+        <h1 className="text-2xl font-bold">Compras</h1>
         <Button onClick={handleAdd}>Adicionar Compra</Button>
       </div>
 
       <div className="bg-gray-100 p-4 rounded-md space-y-4">
-        <h2 className="text-xl font-bold">Filtros</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <Label htmlFor="title" className="mb-2">
-              Título
-            </Label>
-            <Input
-              id="title"
-              value={filterTitle}
-              onChange={(e) => setFilterTitle(e.target.value)}
-            />
-          </div>
+        <button
+          onClick={() => setIsFilterOpen((prev) => !prev)}
+          className="flex justify-between items-center w-full"
+        >
+          <h2 className="text-xl font-bold max-md:text-lg">Filtros</h2>
+          {isFilterOpen ? (
+            <ChevronUp className="size-5 cursor-pointer" />
+          ) : (
+            <ChevronDown className="size-5 cursor-pointer" />
+          )}
+        </button>
 
-          <div>
-            <Label htmlFor="customerId" className="mb-2">
-              Cliente
-            </Label>
-            <SearchableSelect
-              customers={customersWithAllOption}
-              value={filterCustomerId}
-              onValueChange={(value) => setFilterCustomerId(value)}
-              placeholder="Selecione um cliente"
-            />
-          </div>
+        {isFilterOpen && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <Label htmlFor="title" className="mb-2">
+                Título
+              </Label>
+              <Input
+                id="title"
+                value={filterTitle}
+                onChange={(e) => setFilterTitle(e.target.value)}
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="startDate" className="mb-2">
-              Data Inicial
-            </Label>
-            <Input
-              id="startDate"
-              type="date"
-              value={filterStartDate}
-              onChange={(e) => setFilterStartDate(e.target.value)}
-            />
-          </div>
+            <div>
+              <Label htmlFor="customerId" className="mb-2">
+                Cliente
+              </Label>
+              <SearchableSelect
+                customers={customersWithAllOption}
+                value={filterCustomerId}
+                onValueChange={(value) => setFilterCustomerId(value)}
+                placeholder="Selecione um cliente"
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="endDate" className="mb-2">
-              Data Final
-            </Label>
-            <Input
-              id="endDate"
-              type="date"
-              value={filterEndDate}
-              onChange={(e) => setFilterEndDate(e.target.value)}
-            />
+            <div>
+              <Label htmlFor="startDate" className="mb-2">
+                Data Inicial
+              </Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="endDate" className="mb-2">
+                Data Final
+              </Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <PurchaseList
@@ -195,7 +215,7 @@ const PurchasesPage: React.FC = () => {
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-2">
           <p className="text-sm text-gray-700">
-            Página {currentPage} de {totalPages} • {totalItems} itens
+            Página {currentPage} de {totalPages}
           </p>
         </div>
 
@@ -204,18 +224,21 @@ const PurchasesPage: React.FC = () => {
             onClick={() => setCurrentPage((prev) => prev - 1)}
             disabled={currentPage === 1}
           >
-            Anterior
+            <ChevronLeft />
           </Button>
+
           <Button
             onClick={() => setCurrentPage((prev) => prev + 1)}
             disabled={currentPage === totalPages || totalPages === 0}
           >
-            Próxima
+            <ChevronRight />
           </Button>
+
           <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
-            <SelectTrigger className="w-[80px]">
+            <SelectTrigger className="w-[70px]">
               <SelectValue />
             </SelectTrigger>
+
             <SelectContent>
               <SelectItem value="10">10</SelectItem>
               <SelectItem value="20">20</SelectItem>

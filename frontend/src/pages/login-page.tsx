@@ -57,8 +57,8 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-xl rounded-lg border">
-        <h2 className="text-2xl font-bold text-center text-gray-900">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-xl rounded-lg border max-md:max-w-[90%]">
+        <h2 className="text-2xl font-bold text-center text-gray-900 max-md:text-xl">
           Supermercado Líder - Login
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -71,6 +71,7 @@ const LoginPage: React.FC = () => {
               type="email"
               {...register("email")}
               disabled={isSubmitting}
+              className="max-md:text-sm"
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">
@@ -87,6 +88,7 @@ const LoginPage: React.FC = () => {
               type="password"
               {...register("password")}
               disabled={isSubmitting}
+              className="max-md:text-sm"
             />
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">

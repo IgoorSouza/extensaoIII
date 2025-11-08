@@ -104,7 +104,7 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
             <Textarea
               id="description"
               {...register("description")}
-              className="break-all"
+              className="break-all max-h-[150px]"
             />
             {errors.description && (
               <p className="text-red-500 text-sm">

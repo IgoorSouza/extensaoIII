@@ -108,8 +108,9 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({
                 <IMaskInput
                   mask="000.000.000-00"
                   id="cpf"
-                  onAccept={(value) => field.onChange(value)} // Use field.onChange aqui
-                  value={field.value} // Passe o valor do field aqui
+                  type="tel"
+                  onAccept={(value) => field.onChange(value)}
+                  value={field.value}
                   className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                 />
               )}
@@ -129,8 +130,9 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({
                 <IMaskInput
                   mask="(00) 00000-0000"
                   id="phone"
-                  onAccept={(value) => field.onChange(value)} // Use field.onChange aqui
-                  value={field.value} // Passe o valor do field aqui
+                  type="tel"
+                  onAccept={(value) => field.onChange(value)}
+                  value={field.value}
                   className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                 />
               )}
