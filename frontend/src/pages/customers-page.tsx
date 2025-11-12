@@ -24,16 +24,7 @@ import {
 import { IMaskInput } from "react-imask";
 
 const CustomersPage: React.FC = () => {
-  const [customers, setCustomers] = useState<Customer[]>([
-    {
-      id: "",
-      name: "Igor Souza de Castro",
-      email: "igor.castro@estudante.iftm.edu.br",
-      cpf: "11712530607",
-      phone: "34999581733",
-      totalPurchasesValue: 0,
-    },
-  ]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
