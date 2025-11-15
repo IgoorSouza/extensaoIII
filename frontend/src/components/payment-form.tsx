@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
@@ -21,7 +21,6 @@ import copy from "../assets/copy.png";
 import whatsapp from "../assets/whatsapp.png";
 import type { PixData } from "../types/pix-data";
 import type { Payment } from "../types/payment";
-import { IMaskInput } from "react-imask";
 
 interface PaymentFormProps {
   open: boolean;
@@ -39,11 +38,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   initialPaymentData,
 }) => {
   const {
+    register,
     handleSubmit,
     reset,
     setValue,
     watch,
-    control,
     formState: { errors },
   } = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
@@ -227,30 +226,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                 Valor (R$)
               </Label>
 
-              <Controller
-                control={control}
-                name="value"
-                render={({ field }) => (
-                  <IMaskInput
-                    mask={Number}
-                    radix=","
-                    thousandsSeparator="."
-                    scale={2}
-                    padFractionalZeros={true}
-                    normalizeZeros={true}
-                    value={`${field.value}`}
-                    onAccept={(_, mask) => {
-                      field.onChange(
-                        mask.unmaskedValue !== ""
-                          ? Number(mask.unmaskedValue)
-                          : 0
-                      );
-                    }}
-                    onBlur={field.onBlur}
-                    inputRef={field.ref}
-                    className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                  />
-                )}
+              <Input
+                id="value"
+                type="number"
+                step="0.01"
+                {...register("value", { valueAsNumber: true })}
               />
               {errors.value && (
                 <p className="text-red-500 text-sm">{errors.value.message}</p>

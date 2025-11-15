@@ -46,7 +46,7 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
       title: "",
       description: "",
       value: 0,
-      date: "",
+      date: new Date().toISOString().split("T")[0],
       customerId: "",
     },
   });
@@ -54,14 +54,16 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
   const customerId = watch("customerId");
 
   useEffect(() => {
-    const formattedDate = initialData?.date
-      ? new Date(initialData.date).toISOString().split("T")[0]
-      : "";
+    if (initialData) {
+      const formattedDate = initialData.date
+        ? new Date(initialData.date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
 
-    reset({
-      ...initialData,
-      date: formattedDate,
-    });
+      reset({
+        ...initialData,
+        date: formattedDate,
+      });
+    }
   }, [initialData, reset]);
 
   const submitHandler = (data: PurchaseFormData) => {
