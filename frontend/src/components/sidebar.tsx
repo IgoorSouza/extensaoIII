@@ -6,6 +6,7 @@ import { Users, ShoppingCart, DollarSign } from "lucide-react";
 
 interface SidebarProps {
   isOpen: boolean;
+  onLinkClick: () => void;
 }
 
 const links = [
@@ -14,7 +15,7 @@ const links = [
   { label: "Pagamentos", path: "/payments", icon: DollarSign },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onLinkClick }) => {
   const location = useLocation();
 
   return (
@@ -26,7 +27,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     >
       <nav className="flex flex-col gap-2">
         {links.map((link) => (
-          <Link key={link.path} to={link.path} className="w-full">
+          <Link
+            key={link.path}
+            to={link.path}
+            className="w-full"
+            onClick={onLinkClick}
+          >
             <Button
               className={cn(
                 "w-full justify-start gap-3",

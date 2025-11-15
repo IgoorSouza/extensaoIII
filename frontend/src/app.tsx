@@ -14,9 +14,14 @@ import { cn } from "./lib/utils";
 
 interface DashboardLayoutProps extends PropsWithChildren {
   isSidebarOpen: boolean;
+  closeSidebar: () => void;
 }
 
-function DashboardLayout({ children, isSidebarOpen }: DashboardLayoutProps) {
+function DashboardLayout({
+  children,
+  isSidebarOpen,
+  closeSidebar,
+}: DashboardLayoutProps) {
   const { authData } = useAuth();
 
   const SIDEBAR_WIDTH_PX = 224;
@@ -24,14 +29,12 @@ function DashboardLayout({ children, isSidebarOpen }: DashboardLayoutProps) {
   if (authData) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar isOpen={isSidebarOpen} />
-        
+        <Sidebar isOpen={isSidebarOpen} onLinkClick={closeSidebar} />
+
         <main
-          className={cn(
-            "flex-1 mt-14 p-4 transition-all duration-300",
-          )}
-          style={{ 
-            marginLeft: isSidebarOpen ? `${SIDEBAR_WIDTH_PX}px` : "0", 
+          className={cn("flex-1 mt-14 p-4 transition-all duration-300")}
+          style={{
+            marginLeft: isSidebarOpen ? `${SIDEBAR_WIDTH_PX}px` : "0",
           }}
         >
           {children}
@@ -45,23 +48,27 @@ function DashboardLayout({ children, isSidebarOpen }: DashboardLayoutProps) {
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
     <Router>
       <AuthProvider>
         <Toaster position="bottom-right" reverseOrder={false} />
-        
+
         <TopBar onToggleSidebar={toggleSidebar} />
 
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          
+
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <DashboardLayout isSidebarOpen={isSidebarOpen}>
+                <DashboardLayout
+                  isSidebarOpen={isSidebarOpen}
+                  closeSidebar={closeSidebar}
+                >
                   <CustomersPage />
                 </DashboardLayout>
               </ProtectedRoute>
@@ -71,7 +78,10 @@ function App() {
             path="/purchases"
             element={
               <ProtectedRoute>
-                <DashboardLayout isSidebarOpen={isSidebarOpen}>
+                <DashboardLayout
+                  isSidebarOpen={isSidebarOpen}
+                  closeSidebar={closeSidebar}
+                >
                   <PurchasesPage />
                 </DashboardLayout>
               </ProtectedRoute>
@@ -81,7 +91,10 @@ function App() {
             path="/payments"
             element={
               <ProtectedRoute>
-                <DashboardLayout isSidebarOpen={isSidebarOpen}>
+                <DashboardLayout
+                  isSidebarOpen={isSidebarOpen}
+                  closeSidebar={closeSidebar}
+                >
                   <PaymentsPage />
                 </DashboardLayout>
               </ProtectedRoute>
