@@ -54,14 +54,32 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
   const customerId = watch("customerId");
 
   useEffect(() => {
-    if (initialData) {
-      const formattedDate = initialData.date
-        ? new Date(initialData.date).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0];
+    if (open) {
+      if (initialData) {
+        const formattedDate = initialData.date
+          ? new Date(initialData.date).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0];
 
+        reset({
+          ...initialData,
+          date: formattedDate,
+        });
+      } else {
+        reset({
+          title: "",
+          description: "",
+          value: 0,
+          date: new Date().toISOString().split("T")[0],
+          customerId: "",
+        });
+      }
+    } else {
       reset({
-        ...initialData,
-        date: formattedDate,
+        title: "",
+        description: "",
+        value: 0,
+        date: new Date().toISOString().split("T")[0],
+        customerId: "",
       });
     }
   }, [initialData, reset]);

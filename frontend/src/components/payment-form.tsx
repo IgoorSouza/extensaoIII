@@ -17,7 +17,7 @@ import { paymentSchema } from "../validators/payment";
 import type { PaymentFormData } from "../types/payment-form-data";
 import toast from "react-hot-toast";
 import axios from "../lib/axios";
-import copy from "../assets/copy.png";
+import { Copy } from "lucide-react";
 import whatsapp from "../assets/whatsapp.png";
 import type { PixData } from "../types/pix-data";
 import type { Payment } from "../types/payment";
@@ -162,7 +162,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                   onClick={copyToClipboard}
                   title="Copiar código Pix"
                 >
-                  <img src={copy} alt="Copiar" className="size-4" />
+                  <Copy />
                 </Button>
               </div>
             </div>
