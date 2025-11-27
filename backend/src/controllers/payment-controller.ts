@@ -7,9 +7,8 @@ import authMiddleware from "../middlewares/auth-middleware";
 
 export default function paymentController(app: Express) {
   const router = Router();
-  router.use(authMiddleware);
 
-  router.get("/", async (req, res, next) => {
+  router.get("/", authMiddleware, async (req, res, next) => {
     try {
       const { page, pageSize, customerId, startDate, endDate } = req.query as {
         page?: string;
@@ -35,6 +34,7 @@ export default function paymentController(app: Express) {
 
   router.post(
     "/",
+    authMiddleware,
     validateRequestBody(paymentSchema),
     async (req, res, next) => {
       try {
