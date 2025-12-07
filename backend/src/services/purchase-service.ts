@@ -56,14 +56,20 @@ export async function scanPurchases(image: Express.Multer.File) {
   const purchases: { title?: string; value?: number; date?: string }[] = [];
 
   textParts.forEach((part) => {
-    const numberPart = Number(part.replace(",", "."));
+    const numberPart = Number(
+      part.replaceAll(",", ".").replaceAll(":", ".").replaceAll(";", ".")
+    );
 
     if (Number.isFinite(numberPart)) {
-      purchases[purchases.length - 1].value = numberPart;
+      if (purchases.length > 0) {
+        purchases[purchases.length - 1].value = numberPart;
+      }
     } else if (
       part.split("/").every((datePart) => Number.isInteger(Number(datePart)))
     ) {
-      purchases[purchases.length - 1].date = part;
+      if (purchases.length > 0) {
+        purchases[purchases.length - 1].date = part;
+      }
     } else {
       purchases.push({
         title: part,
