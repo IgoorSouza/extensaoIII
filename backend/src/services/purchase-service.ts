@@ -58,11 +58,10 @@ export async function scanPurchases(image: Express.Multer.File) {
   textParts.forEach((part) => {
     const numberPart = Number(part.replace(",", "."));
 
-    if (!Number.isNaN(numberPart)) {
+    if (Number.isFinite(numberPart)) {
       purchases[purchases.length - 1].value = numberPart;
     } else if (
-      part.includes("/") &&
-      Number.isInteger(Number(part.split("/")[0]))
+      part.split("/").every((datePart) => Number.isInteger(Number(datePart)))
     ) {
       purchases[purchases.length - 1].date = part;
     } else {
