@@ -139,6 +139,22 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
   };
 
   const handleFinish = async () => {
+    const currentPurchase = scannedPurchases[currentPage];
+
+    if (
+      !currentPurchase.title ||
+      currentPurchase.title.trim() === "" ||
+      !currentPurchase.value ||
+      !currentPurchase.date
+    ) {
+      setErrors({
+        title: !currentPurchase.title || currentPurchase.title.trim() === "",
+        value: !currentPurchase.value,
+        date: !currentPurchase.date,
+      });
+      return;
+    }
+
     const purchases = scannedPurchases.map((purchase) => {
       const [year, month, day] = purchase.date.split("-");
 
