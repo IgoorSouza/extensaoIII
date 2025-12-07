@@ -22,6 +22,7 @@ import {
   ChevronRight,
   ChevronUp,
 } from "lucide-react";
+import PurchaseScanner from "../components/purchase-scanner";
 
 const PurchasesPage: React.FC = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -106,6 +107,16 @@ const PurchasesPage: React.FC = () => {
     }
   };
 
+  const handleSaveBatch = async (purchases: Purchase[]) => {
+    try {
+      const response = await axios.post("/purchase/batch", purchases);
+      setPurchases((prev) => [...prev, ...response.data]);
+      toast.success("Compras cadastradas com sucesso.");
+    } catch {
+      toast.error(`Erro ao cadastrar compras.`);
+    }
+  };
+
   const handleEdit = (purchase: Purchase) => {
     setSelectedPurchase(purchase);
     setIsFormOpen(true);
@@ -137,7 +148,14 @@ const PurchasesPage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Compras</h1>
-        <Button onClick={handleAdd}>Adicionar Compra</Button>
+
+        <div className="flex items-center gap-x-4">
+          <PurchaseScanner
+            customers={customers}
+            handleSaveBatch={handleSaveBatch}
+          />
+          <Button onClick={handleAdd}>Adicionar Compra</Button>
+        </div>
       </div>
 
       <div className="bg-gray-100 p-4 rounded-md space-y-4">

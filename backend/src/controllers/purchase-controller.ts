@@ -2,12 +2,16 @@ import { Router, type Express } from "express";
 import * as purchaseService from "../services/purchase-service";
 import { PurchaseData } from "../types/purchase";
 import { validateRequestBody } from "../middlewares/request-body-validator";
-import { purchaseSchema } from "../validators/purchase";
+import { batchPurchaseSchema, purchaseSchema } from "../validators/purchase";
 import authMiddleware from "../middlewares/auth-middleware";
+import multer from "multer";
+import { BadRequestException } from "../exceptions/bad-request-exception";
 
 export default function purchaseController(app: Express) {
   const router = Router();
   router.use(authMiddleware);
+
+  const upload = multer({ storage: multer.memoryStorage() });
 
   router.get("/", async (req, res, next) => {
     try {
@@ -50,6 +54,36 @@ export default function purchaseController(app: Express) {
       }
     }
   );
+
+  router.post(
+    "/batch",
+    validateRequestBody(batchPurchaseSchema),
+    async (req, res, next) => {
+      try {
+        const purchasesData: PurchaseData[] = req.body;
+        const purchases = await purchaseService.createPurchaseBatch(
+          purchasesData
+        );
+
+        res.status(200).json(purchases);
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  router.post("/scan", upload.single("file"), async (req, res, next) => {
+    try {
+      if (!req.file) {
+        throw new BadRequestException("Field 'file' is required.");
+      }
+
+      const response = await purchaseService.scanPurchases(req.file);
+      return res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  });
 
   router.put(
     "/:id",

@@ -1,4 +1,5 @@
 import * as purchaseRepository from "../repositories/purchase-repository";
+import * as imageTextRecognitionService from "./image-text-recognition-service";
 import { NotFoundException } from "../exceptions/not-found-exception";
 import { PurchaseData } from "../types/purchase";
 
@@ -37,6 +38,41 @@ export async function getPurchases(
 
 export async function createPurchase(purchaseData: PurchaseData) {
   return await purchaseRepository.create(purchaseData);
+}
+
+export async function createPurchaseBatch(purchasesData: PurchaseData[]) {
+  return await Promise.all(
+    purchasesData.map(
+      async (purchase) => await purchaseRepository.create(purchase)
+    )
+  );
+}
+
+export async function scanPurchases(image: Express.Multer.File) {
+  const extractedText = await imageTextRecognitionService.extractTextFromImage(
+    image
+  );
+  const textParts = extractedText.split("\n");
+  const purchases: { title?: string; value?: number; date?: string }[] = [];
+
+  textParts.forEach((part) => {
+    const numberPart = Number(part.replace(",", "."));
+
+    if (!Number.isNaN(numberPart)) {
+      purchases[purchases.length - 1].value = numberPart;
+    } else if (
+      part.includes("/") &&
+      Number.isInteger(Number(part.split("/")[0]))
+    ) {
+      purchases[purchases.length - 1].date = part;
+    } else {
+      purchases.push({
+        title: part,
+      });
+    }
+  });
+
+  return purchases;
 }
 
 export async function updatePurchase(id: string, purchaseData: PurchaseData) {

@@ -36,16 +36,22 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     [customers, filter]
   );
 
+  const stopKeyboardPropagation = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    e.stopPropagation();
+  };
+
   return (
     <Select
       value={value}
       onValueChange={(newValue) => {
         onValueChange(newValue);
-        setFilter(""); // Reset filter on select
+        setFilter("");
       }}
       onOpenChange={(open) => {
         if (!open) {
-          setFilter(""); // Reset filter on close
+          setFilter("");
         }
       }}
     >
@@ -58,6 +64,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="mb-2"
+          onKeyDown={stopKeyboardPropagation}
+          onKeyUp={stopKeyboardPropagation}
         />
         {filteredCustomers.length > 0 ? (
           filteredCustomers.map((customer) => (

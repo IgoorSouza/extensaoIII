@@ -96,6 +96,13 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({
     };
 
     onSubmit(purchase);
+    reset({
+      title: "",
+      description: "",
+      value: 0,
+      date: new Date().toISOString().split("T")[0],
+      customerId: "",
+    });
   };
 
   return (
